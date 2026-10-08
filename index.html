@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroTech - Innovación y Tecnología de Vanguardia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#0f172a',
+                            accent: '#06b6d4', // Cyan accent
+                            neon: '#38bdf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 300ms ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
+        <!-- Top bar optional announcement -->
+        <div class="bg-gradient-to-r from-brand-600 via-cyan-600 to-brand-700 text-white text-xs py-1.5 text-center font-medium px-4">
+            🚀 Envíos gratis en compras superiores a $100. ¡Aprovecha las Ofertas de Temporada!
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="filterByCategory('all')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid font-bold text-white text-xl">⚡</i>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-neon bg-clip-text text-transparent">
+                        Electro<span class="text-brand-500">Tech</span>
+                    </span>
+                </div>
+
+                <!-- Navigation Links - Desktop -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#hero" class="text-slate-300 hover:text-brand-neon transition-colors py-1">Inicio</a>
+                    <a href="#categories" class="text-slate-300 hover:text-brand-neon transition-colors py-1">Categorías</a>
+                    <a href="#products" class="text-slate-300 hover:text-brand-neon transition-colors py-1">Productos</a>
+                    <a href="#deals" class="text-slate-300 hover:text-brand-neon transition-colors py-1 flex items-center gap-1">
+                        <i class="fa-solid fa-fire text-amber-500 text-xs"></i> Ofertas
+                    </a>
+                </nav>
+
+                <!-- Search Bar -->
+                <div class="hidden lg:flex flex-1 max-w-xs mx-8 relative">
+                    <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Buscar laptops, móviles..." 
+                           class="w-full bg-slate-900/90 border border-slate-700/80 rounded-full py-2 pl-10 pr-4 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+
+                <!-- Actions: Cart & Mobile menu button -->
+                <div class="flex items-center gap-4">
+                    <!-- Search Icon Mobile -->
+                    <button onclick="toggleMobileSearch()" class="lg:hidden text-slate-300 hover:text-white p-2">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </button>
+
+                    <!-- Cart Button -->
+                    <button id="cart-btn" onclick="toggleCartDrawer()" class="relative bg-slate-900 border border-slate-700/60 p-2.5 rounded-full text-slate-200 hover:text-white hover:border-brand-500 transition shadow-sm group">
+                        <i class="fa-solid fa-cart-shopping text-lg group-hover:scale-110 transition-transform"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-brand-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950 scale-0 transition-transform duration-200">
+                            0
+                        </span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar (Expandable) -->
+            <div id="mobile-search-bar" class="hidden lg:hidden pb-4">
+                <div class="relative">
+                    <input type="text" id="mobile-search-input" onkeyup="handleMobileSearch()" placeholder="Buscar productos..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:border-brand-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+            <a href="#hero" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-brand-500 py-2 text-base font-medium">Inicio</a>
+            <a href="#categories" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-brand-500 py-2 text-base font-medium">Categorías</a>
+            <a href="#products" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-brand-500 py-2 text-base font-medium">Productos</a>
+            <a href="#deals" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-brand-500 py-2 text-base font-medium">Ofertas</a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section id="hero" class="relative overflow-hidden py-12 lg:py-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+            <!-- Background Glow effects -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-10 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <!-- Left Hero Content -->
+                    <div class="space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-neon text-xs font-semibold uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+                            Nuevo Lanzamiento 2026
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+                            Experimenta la <br class="hidden sm:inline"/>
+                            <span class="bg-gradient-to-r from-brand-400 via-cyan-300 to-indigo-400 bg-clip-text text-transparent">
+                                Próxima Generación
+                            </span>
+                        </h1>
+                        <p class="text-slate-400 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 font-normal">
+                            Descubre smartphones, laptops y accesorios tecnológicos de alto rendimiento con los mejores precios y garantía oficial.
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                            <a href="#products" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-brand-600 to-cyan-600 hover:from-brand-500 hover:to-cyan-500 text-white font-semibold rounded-xl shadow-lg shadow-brand-600/30 transition transform hover:-translate-y-0.5 text-center">
+                                Explorar Catálogo
+                            </a>
+                            <a href="#deals" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 font-semibold rounded-xl transition text-center flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-bolt text-amber-400"></i> Ver Ofertas
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Hero Graphic -->
+                    <div class="relative flex justify-center">
+                        <div class="relative w-full max-w-md lg:max-w-none">
+                            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/50 shadow-2xl relative">
+                                <span class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                    -25% OFF
+                                </span>
+                                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80" 
+                                     alt="MacBook Pro Retina" 
+                                     class="w-full h-64 sm:h-80 object-cover rounded-2xl mb-6 transform hover:scale-105 transition duration-500"
+                                     onerror="this.src='https://placehold.co/600x400/1e293b/ffffff?text=Laptop+Pro+X'">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-brand-neon uppercase font-semibold">Producto Destacado</p>
+                                        <h3 class="text-xl font-bold text-white">UltraLaptop Pro X1 16"</h3>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-xs text-slate-400 line-through block">$1,999</span>
+                                        <span class="text-2xl font-extrabold text-white">$1,499</span>
+                                    </div>
+                                </div>
+                                <button onclick="quickAddToCart(1)" class="w-full mt-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-medium rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cart-plus"></i> Añadir al Carrito
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories" class="py-16 bg-slate-900/60 border-y border-slate-800/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight">Categorías Populares</h2>
+                    <p class="text-slate-400 mt-2 text-sm">Explora nuestros productos filtrados por tus tecnología preferida</p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <!-- Category Card 1 -->
+                    <div onclick="filterByCategory('smartphones')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Smartphones</h3>
+                    </div>
+
+                    <!-- Category Card 2 -->
+                    <div onclick="filterByCategory('laptops')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-laptop text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Laptops</h3>
+                    </div>
+
+                    <!-- Category Card 3 -->
+                    <div onclick="filterByCategory('audio')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-headphones text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Audio & Sound</h3>
+                    </div>
+
+                    <!-- Category Card 4 -->
+                    <div onclick="filterByCategory('gaming')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-gamepad text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Gaming</h3>
+                    </div>
+
+                    <!-- Category Card 5 -->
+                    <div onclick="filterByCategory('wearables')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-clock text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Smartwatches</h3>
+                    </div>
+
+                    <!-- Category Card 6 -->
+                    <div onclick="filterByCategory('accessories')" class="group cursor-pointer bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-5 rounded-2xl text-center transition duration-300 hover:shadow-lg hover:shadow-brand-500/10">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-800 group-hover:bg-brand-600/20 text-brand-neon flex items-center justify-center transition">
+                            <i class="fa-solid fa-plug text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white">Accesorios</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="deals" class="py-12 bg-gradient-to-r from-brand-900 via-slate-900 to-brand-900 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-gradient-to-r from-slate-900/90 to-slate-800/90 border border-brand-500/30 rounded-3xl p-6 md:p-10 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl relative overflow-hidden">
+                    <div class="space-y-4 text-center lg:text-left">
+                        <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock"></i> Oferta Flash por Tiempo Limitado
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Auriculares Inalámbricos SoundPro Noise-Canceling</h2>
+                        <p class="text-slate-400 max-w-lg text-sm">Cancelación de ruido activa, 40h de batería y sonido de alta fidelidad Hi-Res.</p>
+                        
+                        <!-- Countdown Timer -->
+                        <div class="flex items-center justify-center lg:justify-start gap-3 pt-2">
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 min-w-[65px] text-center">
+                                <span id="hours" class="text-2xl font-bold text-brand-neon block">08</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-medium">Horas</span>
+                            </div>
+                            <span class="text-2xl font-bold text-slate-600">:</span>
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 min-w-[65px] text-center">
+                                <span id="minutes" class="text-2xl font-bold text-brand-neon block">42</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-medium">Min</span>
+                            </div>
+                            <span class="text-2xl font-bold text-slate-600">:</span>
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 min-w-[65px] text-center">
+                                <span id="seconds" class="text-2xl font-bold text-brand-neon block">15</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-medium">Seg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <div class="text-center sm:text-right">
+                            <span class="text-sm text-slate-400 line-through">$299.99</span>
+                            <div class="text-3xl font-black text-brand-neon">$179.99</div>
+                            <span class="text-xs text-emerald-400 font-semibold">Ahorras $120.00</span>
+                        </div>
+                        <button onclick="quickAddToCart(3)" class="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5 whitespace-nowrap">
+                            ¡Comprar Ahora!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header & Category Filters -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">Catálogo de Productos</h2>
+                        <p class="text-slate-400 text-sm mt-1">Explora nuestros artículos tecnológicos con entrega rápida</p>
+                    </div>
+
+                    <!-- Category Pills Filter -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                        <button onclick="filterByCategory('all')" id="btn-cat-all" class="cat-pill active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-brand-600 text-white">
+                            Todos
+                        </button>
+                        <button onclick="filterByCategory('smartphones')" id="btn-cat-smartphones" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+                            Smartphones
+                        </button>
+                        <button onclick="filterByCategory('laptops')" id="btn-cat-laptops" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+                            Laptops
+                        </button>
+                        <button onclick="filterByCategory('audio')" id="btn-cat-audio" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+                            Audio
+                        </button>
+                        <button onclick="filterByCategory('gaming')" id="btn-cat-gaming" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+                            Gaming
+                        </button>
+                        <button onclick="filterByCategory('wearables')" id="btn-cat-wearables" class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+                            Smartwatches
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Dynamic Product Cards Injected Here via JavaScript -->
+                </div>
+
+                <!-- Empty Search Result State -->
+                <div id="no-results" class="hidden text-center py-16">
+                    <i class="fa-solid fa-box-open text-5xl text-slate-700 mb-4"></i>
+                    <h3 class="text-xl font-bold text-slate-300">No se encontraron productos</h3>
+                    <p class="text-slate-500 text-sm mt-1">Intenta con otra búsqueda o selecciona una categoría diferente.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-slate-900/40 border-t border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-neon flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-truck-fast text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Envío Exprés</h4>
+                            <p class="text-xs text-slate-400">Entrega en 24-48 horas a todo el país.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-neon flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-shield-halved text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Garantía Oficial</h4>
+                            <p class="text-xs text-slate-400">12 meses de soporte de fábrica.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-neon flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-headset text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Soporte 24/7</h4>
+                            <p class="text-xs text-slate-400">Atención personalizada continua.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-neon flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-lock text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Pago Seguro</h4>
+                            <p class="text-xs text-slate-400">Cifrado de datos de 256 bits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+                <!-- Column 1: Brand Info -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-cyan-400 flex items-center justify-center">
+                            <i class="fa-solid font-bold text-white text-sm">⚡</i>
+                        </div>
+                        <span class="text-xl font-extrabold text-white">ElectroTech</span>
+                    </div>
+                    <p class="text-slate-400 max-w-sm">
+                        Líderes en venta de tecnología de vanguardia. Te traemos lo último en gadgets, computación y smartphones con la garantía que mereces.
+                    </p>
+                    <div class="flex space-x-3 pt-2">
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-white hover:border-brand-500 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-white hover:border-brand-500 transition"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-white hover:border-brand-500 transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-white hover:border-brand-500 transition"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Links -->
+                <div>
+                    <h5 class="text-slate-200 font-bold text-sm mb-3 uppercase tracking-wider">Navegación</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#hero" class="hover:text-white transition">Inicio</a></li>
+                        <li><a href="#categories" class="hover:text-white transition">Categorías</a></li>
+                        <li><a href="#products" class="hover:text-white transition">Productos</a></li>
+                        <li><a href="#deals" class="hover:text-white transition">Ofertas</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Customer Service -->
+                <div>
+                    <h5 class="text-slate-200 font-bold text-sm mb-3 uppercase tracking-wider">Soporte</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Centro de Ayuda</a></li>
+                        <li><a href="#" class="hover:text-white transition">Estado de Pedido</a></li>
+                        <li><a href="#" class="hover:text-white transition">Políticas de Garantía</a></li>
+                        <li><a href="#" class="hover:text-white transition">Términos y Condiciones</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Newsletter -->
+                <div>
+                    <h5 class="text-slate-200 font-bold text-sm mb-3 uppercase tracking-wider">Boletín</h5>
+                    <p class="text-slate-400 mb-3">Suscríbete para recibir ofertas exclusivas.</p>
+                    <form onsubmit="handleNewsletter(event)" class="space-y-2">
+                        <input type="email" required placeholder="tu@email.com" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2 rounded-lg transition">Suscribirse</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>&copy; 2026 ElectroTech Inc. Todos los derechos reservados.</p>
+                <div class="flex items-center gap-4 text-slate-500 text-lg">
+                    <i class="fa-brands fa-cc-visa hover:text-slate-300"></i>
+                    <i class="fa-brands fa-cc-mastercard hover:text-slate-300"></i>
+                    <i class="fa-brands fa-cc-paypal hover:text-slate-300"></i>
+                    <i class="fa-brands fa-apple-pay hover:text-slate-300"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-slate-900 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <!-- Cart Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-brand-neon"></i>
+                <h3 class="font-bold text-lg text-white">Tu Carrito</h3>
+                <span id="cart-count-title" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">(0)</span>
+            </div>
+            <button onclick="toggleCartDrawer()" class="text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-5 space-y-4">
+            <!-- Dynamic Cart Content -->
+        </div>
+
+        <!-- Cart Summary & Checkout -->
+        <div class="p-5 border-t border-slate-800 bg-slate-950/80 space-y-3">
+            <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between text-slate-400">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="text-slate-200 font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Impuestos (16%)</span>
+                    <span id="cart-tax" class="text-slate-200 font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Envío</span>
+                    <span class="text-emerald-400 font-medium">GRATIS</span>
+                </div>
+                <div class="flex justify-between text-sm text-white font-bold pt-2 border-t border-slate-800">
+                    <span>Total</span>
+                    <span id="cart-total" class="text-brand-neon">$0.00</span>
+                </div>
+            </div>
+
+            <button onclick="proceedToCheckout()" class="w-full py-3 bg-gradient-to-r from-brand-600 to-cyan-600 hover:from-brand-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                Proceder al Pago <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
+    </aside>
+
+    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 relative overflow-hidden shadow-2xl">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Product Database
+        const products = [
+            {
+                id: 1,
+                name: "UltraLaptop Pro X1 16\"",
+                category: "laptops",
+                price: 1499.00,
+                originalPrice: 1999.00,
+                rating: 4.9,
+                reviews: 128,
+                badge: "-25% OFF",
+                image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+                description: "Procesador Intel Core i9, 32GB RAM DDR5, SSD 1TB NVMe, Pantalla OLED 120Hz."
+            },
+            {
+                id: 2,
+                name: "Smartphone Apex Ultra 5G",
+                category: "smartphones",
+                price: 899.00,
+                originalPrice: 1099.00,
+                rating: 4.8,
+                reviews: 95,
+                badge: "TOP VENTAS",
+                image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
+                description: "Cámara principal de 200MP, Batería de 5000mAh, Carga Ultra-rápida 120W."
+            },
+            {
+                id: 3,
+                name: "Auriculares SoundPro ANC",
+                category: "audio",
+                price: 179.99,
+                originalPrice: 299.99,
+                rating: 4.7,
+                reviews: 210,
+                badge: "OFERTA DÍA",
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+                description: "Cancelación activa de ruido adaptable, 40 horas de autonomía y códec Hi-Res Audio."
+            },
+            {
+                id: 4,
+                name: "Consola NextGen Gaming Pro",
+                category: "gaming",
+                price: 499.99,
+                originalPrice: 549.99,
+                rating: 4.9,
+                reviews: 310,
+                badge: "NUEVO",
+                image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=600&q=80",
+                description: "Gráficos en 4K a 120fps, SSD ultrarrápido de 1TB y mando con retroalimentación háptica."
+            },
+            {
+                id: 5,
+                name: "Smartwatch Titan Fit Ultra",
+                category: "wearables",
+                price: 249.00,
+                originalPrice: 299.00,
+                rating: 4.6,
+                reviews: 84,
+                badge: "POPULAR",
+                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+                description: "GPS multibanda, monitor de SpO2 y ritmo cardíaco, caja de titanio resistente al agua."
+            },
+            {
+                id: 6,
+                name: "Teclado Mecánico RGB Custom",
+                category: "accessories",
+                price: 119.50,
+                originalPrice: 149.50,
+                rating: 4.8,
+                reviews: 62,
+                badge: null,
+                image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
+                description: "Switches mecánicos lubricados de fábrica, chasis de aluminio, ilumación RGB tecla por tecla."
+            },
+            {
+                id: 7,
+                name: "Monitor Gamer 27\" 240Hz Curved",
+                category: "gaming",
+                price: 329.00,
+                originalPrice: 399.00,
+                rating: 4.7,
+                reviews: 142,
+                badge: "-17% OFF",
+                image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=600&q=80",
+                description: "Panel Fast IPS 1ms, resolución QHD 1440p, compatible con NVIDIA G-Sync y FreeSync."
+            },
+            {
+                id: 8,
+                name: "Altavoz Bluetooth Portable Bass+",
+                category: "audio",
+                price: 89.99,
+                originalPrice: 119.99,
+                rating: 4.5,
+                reviews: 77,
+                badge: null,
+                image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=600&q=80",
+                description: "Resistente al agua IPX7, 24 horas de reproducción continua y graves profundos incorporados."
+            }
+        ];
+
+        // Global State
+        let cart = [];
+        let currentCategory = 'all';
+
+        // DOM Loaded Init
+        window.onload = function() {
+            renderProducts(products);
+            startCountdown();
+        };
+
+        function renderProducts(items) {
+            const container = document.getElementById('products-grid');
+            const noResults = document.getElementById('no-results');
+
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            items.forEach(product => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition duration-300 flex flex-col group shadow-lg";
+                
+                card.innerHTML = `
+                    <div class="relative overflow-hidden bg-slate-950 aspect-square">
+                        ${product.badge ? `<span class="absolute top-3 left-3 z-10 bg-brand-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">${product.badge}</span>` : ''}
+                        <img src="${product.image}" alt="${product.name}" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                             onerror="this.src='https://placehold.co/400x400/1e293b/ffffff?text=ElectroTech'">
+                        <button onclick="openProductModal(${product.id})" class="absolute bottom-3 right-3 bg-slate-900/80 hover:bg-brand-600 text-white p-2.5 rounded-xl backdrop-blur-md transition opacity-0 group-hover:opacity-100">
+                            <i class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <div class="flex items-center gap-1 text-amber-400 text-xs mb-1">
+                            <i class="fa-solid fa-star"></i>
+                            <span class="font-bold text-slate-200">${product.rating}</span>
+                            <span class="text-slate-500">(${product.reviews})</span>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-1 group-hover:text-brand-neon transition cursor-pointer" onclick="openProductModal(${product.id})">${product.name}</h3>
+                        <p class="text-slate-400 text-xs line-clamp-2 mb-4 flex-grow">${product.description}</p>
+                        
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                            <div>
+                                ${product.originalPrice ? `<span class="text-[11px] text-slate-500 line-through block">$${product.originalPrice.toFixed(2)}</span>` : ''}
+                                <span class="text-lg font-extrabold text-white">$${product.price.toFixed(2)}</span>
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-brand-600/10 hover:bg-brand-600 text-brand-neon hover:text-white border border-brand-500/30 px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-cart-plus"></i> Añadir
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update active pill button UI
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white');
+                btn.classList.add('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300');
+            });
+            
+            const activeBtn = document.getElementById(`btn-cat-${category}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300');
+                activeBtn.classList.add('bg-brand-600', 'text-white');
+            }
+
+            // Filter logic
+            if (category === 'all') {
+                renderProducts(products);
+            } else {
+                const filtered = products.filter(p => p.category === category);
+                renderProducts(filtered);
+            }
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            filterProductsByQuery(query);
+        }
+
+        function handleMobileSearch() {
+            const query = document.getElementById('mobile-search-input').value.toLowerCase();
+            filterProductsByQuery(query);
+        }
+
+        function filterProductsByQuery(query) {
+            const filtered = products.filter(p => 
+                (currentCategory === 'all' || p.category === currentCategory) &&
+                (p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query))
+            );
+            renderProducts(filtered);
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingIndex = cart.findIndex(item => item.id === productId);
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartUI();
+            showToast(`¡${product.name} añadido al carrito!`);
+        }
+
+        function quickAddToCart(productId) {
+            addToCart(productId);
+            toggleCartDrawer(true);
+        }
+
+        function updateQuantity(productId, delta) {
+            const itemIndex = cart.findIndex(item => item.id === productId);
+            if (itemIndex > -1) {
+                cart[itemIndex].quantity += delta;
+                if (cart[itemIndex].quantity <= 0) {
+                    cart.splice(itemIndex, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+            showToast("Producto eliminado del carrito");
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartBadge = document.getElementById('cart-badge');
+            const cartCountTitle = document.getElementById('cart-count-title');
+            
+            // Total items count calculation
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Badge Animation & Updates
+            cartBadge.innerText = totalCount;
+            cartCountTitle.innerText = `(${totalCount})`;
+            if (totalCount > 0) {
+                cartBadge.classList.remove('scale-0');
+            } else {
+                cartBadge.classList.add('scale-0');
+            }
+
+            // Render Cart Drawer Items
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fa-solid fa-cart-arrow-down text-4xl mb-3 text-slate-700"></i>
+                        <p class="text-sm">Tu carrito está vacío</p>
+                    </div>
+                `;
+            } else {
+                cart.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = "flex items-center gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl";
+                    itemEl.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg bg-slate-900 shrink-0" onerror="this.src='https://placehold.co/100/1e293b/ffffff?text=Tech'">
+                        <div class="flex-grow min-w-0">
+                            <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
+                            <span class="text-xs text-brand-neon font-semibold">$${(item.price * item.quantity).toFixed(2)}</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="w-5 h-5 bg-slate-800 text-slate-300 hover:text-white rounded flex items-center justify-center text-xs">-</button>
+                                <span class="text-xs font-bold text-slate-200">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="w-5 h-5 bg-slate-800 text-slate-300 hover:text-white rounded flex items-center justify-center text-xs">+</button>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="text-slate-500 hover:text-red-400 p-1">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    `;
+                    cartItemsContainer.appendChild(itemEl);
+                });
+            }
+
+            // Calculations
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.16;
+            const total = subtotal + tax;
+
+            document.getElementById('cart-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
+        }
+
+        function toggleCartDrawer(forceOpen = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+
+            if (forceOpen || drawer.classList.contains('translate-x-full')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                drawer.classList.remove('translate-x-full');
+            } else {
+                overlay.classList.add('opacity-0');
+                drawer.classList.add('translate-x-full');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-6 items-center">
+                    <div class="bg-slate-950 rounded-2xl overflow-hidden aspect-square">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-brand-500/20 text-brand-neon px-2.5 py-1 rounded-full uppercase font-bold">${product.category}</span>
+                            ${product.badge ? `<span class="text-xs bg-red-500/20 text-red-400 px-2.5 py-1 rounded-full uppercase font-bold">${product.badge}</span>` : ''}
+                        </div>
+                        <h2 class="text-2xl font-black text-white">${product.name}</h2>
+                        <div class="flex items-center gap-2 text-amber-400 text-sm">
+                            <i class="fa-solid fa-star"></i>
+                            <span class="font-bold text-white">${product.rating}</span>
+                            <span class="text-slate-500">(${product.reviews} reseñas de clientes)</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed">${product.description}</p>
+                        <div class="pt-2">
+                            <span class="text-xs text-slate-500 line-through block">Precio Regular: $${(product.price * 1.2).toFixed(2)}</span>
+                            <span class="text-3xl font-extrabold text-brand-neon">$${product.price.toFixed(2)}</span>
+                        </div>
+                        <button onclick="addToCart(${product.id}); closeProductModal();" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i> Añadir al Carrito
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showToast("Tu carrito está vacío", "error");
+                return;
+            }
+            showToast("¡Pedido procesado con éxito! Gracias por tu compra.");
+            cart = [];
+            updateCartUI();
+            toggleCartDrawer();
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === "error" ? "bg-red-600" : "bg-brand-600";
+            
+            toast.className = `pointer-events-auto ${bgColor} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold toast-enter transition duration-300`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('toast-enter-active'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter-active');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function startCountdown() {
+            let hours = 8, minutes = 42, seconds = 15;
+
+            setInterval(() => {
+                if (seconds > 0) {
+                    seconds--;
+                } else {
+                    seconds = 59;
+                    if (minutes > 0) {
+                        minutes--;
+                    } else {
+                        minutes = 59;
+                        if (hours > 0) hours--;
+                    }
+                }
+
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleMobileSearch() {
+            const searchBar = document.getElementById('mobile-search-bar');
+            searchBar.classList.toggle('hidden');
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast("¡Gracias por suscribirte a nuestras ofertas!");
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>
